@@ -1,0 +1,28 @@
+version: '3.1'
+
+services:
+    web:
+        image: rudymccomb/docker-swarm-flask-demo-web
+        command: gunicorn --bind 0.0.0.0:5000 wsgi:app
+        deploy:
+            replicas: 2
+        secrets:
+            - db_password
+
+    nginx:
+        image: rudymccomb/docker-swarm-flask-demo-nginx
+        ports:
+            - 8000:80
+        deploy:
+            mode: global
+
+    redis:
+        image: redis
+        deploy:
+            replicas: 1
+            placement:
+                constraints: [node.role == manager]
+
+secrets:
+    db_password:
+        external: true
